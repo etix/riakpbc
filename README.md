@@ -1,4 +1,4 @@
-shoebox
+riakpbc
 =======
 
-Go, Riak, and Protocol Buffers
+A Riak Protocol Buffer Client in Go
