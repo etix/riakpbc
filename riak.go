@@ -67,6 +67,8 @@ var (
 	ErrCorruptHeader = errors.New("corrupt header")
 )
 
+/* Request Methods */
+
 // Store an object in riak
 func StoreObject(c *Conn, bucket string, key string, content string) (b []byte, err error) {
 	jval, err := json.Marshal(content)
@@ -229,6 +231,10 @@ func GetServerInfo(c *Conn) (b []byte, err error) {
 	return b, nil
 }
 
+func GetBucket(c *Conn, bucket string) (b []byte, err error) {
+
+}
+
 func marshalRequest(reqstruct interface{}) (marshaledRequest []byte, err error) {
 
 	marshaledRequest, err = proto.Marshal(reqstruct)
@@ -312,6 +318,8 @@ func unmarshalResponse(respraw []byte) (respbuf interface{}, err error) {
 		err = proto.Unmarshal(respbuf.([]byte), respstruct)
 		respbuf = respstruct.Keys
 	}
+
+  if structname == "
 
 	return respbuf, nil
 }
