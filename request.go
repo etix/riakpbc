@@ -195,5 +195,46 @@ func GetServerInfo(c *Conn) (b []byte, err error) {
 }
 
 func GetBucket(c *Conn, bucket string) (b []byte, err error) {
-  return b, err
+  return b, nil
 }
+
+func SetBucket(c *Conn, bucket string, nval *uint32, allowmult *bool) (b []byte, err error) {
+  propstruct := &RpbBucketProps {
+    NVal: nval,
+    AllowMult: allowmult,
+  }
+
+  reqstruct := &RpbSetBucketReq {
+    Bucket: []byte(bucket),
+    Props: propstruct,
+  }
+
+	marshaledRequest, err := marshalRequest(reqstruct)
+	if err != nil {
+		return nil, err
+	}
+
+	formattedRequest, err := formatMarshaledData("RpbSetBucketReq", marshaledRequest)
+	if err != nil {
+		return
+	}
+
+	err = writeRequest(c, formattedRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	marshaledResponse, err := readResponse(c)
+	if err != nil {
+		return nil, err
+	}
+
+	rawresp, err := unmarshalResponse(marshaledResponse)
+	if err != nil {
+		return nil, err
+	}
+	b = rawresp.([]byte)
+
+  return b, nil
+}
+
