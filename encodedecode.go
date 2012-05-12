@@ -77,7 +77,7 @@ func unmarshalResponse(respraw []byte) (respbuf interface{}, err error) {
 		respstruct := &RpbSetBucketResp{}
 		err = proto.Unmarshal(respbuf.([]byte), respstruct)
 		respbuf = []byte("Success")
-  }
+	}
 
 	return respbuf, nil
 }

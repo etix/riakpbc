@@ -27,4 +27,3 @@ var numToCommand = map[int]string{
 	23: "RpbMapRedReq",
 	24: "RpbMapRedResp",
 }
-

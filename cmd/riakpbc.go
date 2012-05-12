@@ -29,16 +29,16 @@ func main() {
 	nobj, _ := riakpbc.FetchObject(conn, "bucket", "keyzles")
 	log.Printf("%s", pretty.Formatter(nobj))
 
-  //nval := uint32(1)
-  //allowmult := false
+	nval := uint32(1)
+	allowmult := false
 
-	//nobj, _ = riakpbc.SetBucket(conn, "bucketier", &nval, &allowmult)
-	//log.Printf("%s", pretty.Formatter(nobj))
+	nobj, _ = riakpbc.SetBucket(conn, "bucketier", &nval, &allowmult)
+	log.Printf("%s", pretty.Formatter(nobj))
 
-  //storeresp, _ = riakpbc.StoreObject(conn, "bucketier", "keyzles", "{'keyzle':'deyzle'}")
-	//log.Printf("%s", pretty.Formatter(storeresp))
+	storeresp, _ = riakpbc.StoreObject(conn, "bucketier", "keyzles", "{'keyzle':'deyzle'}")
+	log.Printf("%s", pretty.Formatter(storeresp))
 
-  obj, _ = riakpbc.FetchObject(conn, "bucketier", "keyzles")
+	obj, _ = riakpbc.FetchObject(conn, "bucketier", "keyzles")
 	log.Printf("%s", pretty.Formatter(obj))
 
 	conn.Close()
