@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-  // connect to the riak cluster
+	// connect to the riak cluster
 	conn, err := riakpbc.Dial("127.0.0.1:8081")
 
 	if err != nil {
@@ -23,7 +23,7 @@ func main() {
 		return
 	}
 
-  // get the value of 'key' in the 'bucket' bucket and print it
+	// get the value of 'key' in the 'bucket' bucket and print it
 	obj, _ := riakpbc.FetchObject(conn, "bucket", "key")
 	log.Printf("%s", pretty.Formatter(obj))
 }
