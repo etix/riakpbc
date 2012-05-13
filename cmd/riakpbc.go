@@ -7,39 +7,39 @@ import (
 )
 
 func main() {
-	conn, err := riakpbc.Dial("127.0.0.1:8081")
+	riak, err := riakpbc.Dial("127.0.0.1:8081")
 
 	if err != nil {
 		log.Print(err)
 		return
 	}
 
-	obj, _ := riakpbc.FetchObject(conn, "bucket", "key")
+	obj, _ := riak.FetchObject("bucket", "key")
 	log.Printf("%s", pretty.Formatter(obj))
 
-	bux, _ := riakpbc.ListBuckets(conn)
+	bux, _ := riak.ListBuckets()
 	log.Printf("%s", pretty.Formatter(bux))
 
-	info, _ := riakpbc.GetServerInfo(conn)
+	info, _ := riak.GetServerInfo()
 	log.Printf("%s", pretty.Formatter(info))
 
-	storeresp, _ := riakpbc.StoreObject(conn, "bucket", "keyzles", "{'keyzle':'deyzle'}")
+	storeresp, _ := riak.StoreObject("bucket", "keyzles", "{'keyzle':'deyzle'}")
 	log.Printf("%s", pretty.Formatter(storeresp))
 
-	nobj, _ := riakpbc.FetchObject(conn, "bucket", "keyzles")
+	nobj, _ := riak.FetchObject("bucket", "keyzles")
 	log.Printf("%s", pretty.Formatter(nobj))
 
 	nval := uint32(1)
 	allowmult := false
 
-	nobj, _ = riakpbc.SetBucket(conn, "bucketier", &nval, &allowmult)
+	nobj, _ = riak.SetBucket("squadrons", &nval, &allowmult)
 	log.Printf("%s", pretty.Formatter(nobj))
 
-	storeresp, _ = riakpbc.StoreObject(conn, "bucketier", "keyzles", "{'keyzle':'deyzle'}")
+	storeresp, _ = riak.StoreObject("squadrons", "nymets", "{'players':['deyzle','freyzle','chezyle']}")
 	log.Printf("%s", pretty.Formatter(storeresp))
 
-	obj, _ = riakpbc.FetchObject(conn, "bucketier", "keyzles")
+	obj, _ = riak.FetchObject("squadrons", "nymets")
 	log.Printf("%s", pretty.Formatter(obj))
 
-	conn.Close()
+	riak.Close()
 }

@@ -7,6 +7,7 @@ import (
 var (
 	ErrLengthZero    = errors.New("length response 0")
 	ErrCorruptHeader = errors.New("corrupt header")
+	ErrKeyNotFound   = errors.New("object not found")
 )
 
 func writeRequest(c *Conn, formattedRequest []byte) (err error) {

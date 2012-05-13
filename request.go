@@ -33,7 +33,7 @@ var commandToNum = map[string]byte{
 }
 
 // Store an object in riak
-func StoreObject(c *Conn, bucket string, key string, content string) (b []byte, err error) {
+func (c *Conn) StoreObject(bucket string, key string, content string) (b []byte, err error) {
 	jval, err := json.Marshal(content)
 
 	reqstruct := &RpbPutReq{
@@ -75,7 +75,7 @@ func StoreObject(c *Conn, bucket string, key string, content string) (b []byte, 
 }
 
 // Fetch an object from a bucket
-func FetchObject(c *Conn, bucket string, key string) (b []byte, err error) {
+func (c *Conn) FetchObject(bucket string, key string) (b []byte, err error) {
 	reqstruct := &RpbGetReq{
 		Bucket: []byte(bucket),
 		Key:    []byte(key),
@@ -111,7 +111,7 @@ func FetchObject(c *Conn, bucket string, key string) (b []byte, err error) {
 }
 
 // List all buckets
-func ListBuckets(c *Conn) (b [][]byte, err error) {
+func (c *Conn) ListBuckets() (b [][]byte, err error) {
 	reqdata := []byte{0, 0, 0, 1, 15}
 
 	err = writeRequest(c, reqdata)
@@ -136,7 +136,7 @@ func ListBuckets(c *Conn) (b [][]byte, err error) {
 }
 
 // List all keys from bucket
-func ListKeys(c *Conn, bucket string) (b [][]byte, err error) {
+func (c *Conn) ListKeys(bucket string) (b [][]byte, err error) {
 	reqstruct := &RpbListKeysReq{
 		Bucket: []byte(bucket),
 	}
@@ -172,7 +172,7 @@ func ListKeys(c *Conn, bucket string) (b [][]byte, err error) {
 }
 
 // Get server info
-func GetServerInfo(c *Conn) (b []byte, err error) {
+func (c *Conn) GetServerInfo() (b []byte, err error) {
 	reqdata := []byte{0, 0, 0, 1, 7}
 
 	err = writeRequest(c, reqdata)
@@ -195,12 +195,12 @@ func GetServerInfo(c *Conn) (b []byte, err error) {
 }
 
 // Get bucket info
-func GetBucket(c *Conn, bucket string) (b []byte, err error) {
+func (c *Conn) GetBucket(bucket string) (b []byte, err error) {
 	return b, nil
 }
 
 // Create bucket
-func SetBucket(c *Conn, bucket string, nval *uint32, allowmult *bool) (b []byte, err error) {
+func (c *Conn) SetBucket(bucket string, nval *uint32, allowmult *bool) (b []byte, err error) {
 	propstruct := &RpbBucketProps{
 		NVal:      nval,
 		AllowMult: allowmult,
