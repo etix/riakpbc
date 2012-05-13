@@ -38,12 +38,16 @@ func unmarshalResponse(respraw []byte) (respbuf interface{}, err error) {
 
 	resplength := respraw[3]
 
+	resptype := respraw[4]
+
 	if resplength == byte(1) {
 		err = ErrLengthZero
+
+		if resptype == 10 {
+			err = ErrObjectNotFound
+		}
 		return respbuf, err
 	}
-
-	resptype := respraw[4]
 
 	structname := numToCommand[int(resptype)]
 
