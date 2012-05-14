@@ -57,6 +57,10 @@ func (c *Conn) StoreObject(bucket string, key string, content string) (b []byte,
     Store an object in riak
 ```
 
+### TODO
+
+* Async goroutines for connection pool/handling
+
 ### Credits
 
 riakpbc is (c) Michael R. Bernstein, 2012

@@ -10,16 +10,22 @@ type Conn struct {
 }
 
 // Dial connects to a single riak server.
-func Dial(addr string) (*Conn, error) {
-	var c Conn
-	var err error
-	c.addr = addr
-	c.conn, err = net.Dial("tcp", addr)
-	if err != nil {
-		return nil, err
-	}
+func Dial(addr string) (conns []Conn, err error) {
+  num := 5
 
-	return &c, nil
+  for i := 0; i < num; i++ {
+    var c Conn
+    c.addr = addr
+    c.conn, err = net.Dial("tcp", addr)
+
+    _ = append(conns, c)
+
+    if err != nil {
+      return nil, err
+    }
+  }
+
+	return conns, nil
 }
 
 func (c *Conn) Close() {

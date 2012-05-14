@@ -12,7 +12,7 @@ func main() {
 	if err != nil {
 	}
 
-	obj, err := riak.FetchObject("bucket", "keydqwoidjqw")
+	obj, err := riak[0].FetchObject("bucket", "keydqwoidjqw")
 	log.Printf("%s", pretty.Formatter(obj))
 	log.Printf("%s", err)
 

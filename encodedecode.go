@@ -36,8 +36,8 @@ func unmarshalResponse(respraw []byte) (respbuf interface{}, err error) {
 		return respbuf, err
 	}
 
+	// Read the length and type of the response
 	resplength := respraw[3]
-
 	resptype := respraw[4]
 
 	if resplength == byte(1) {
