@@ -1,26 +1,99 @@
 package riakpbc
 
-import (
-	"errors"
+import(
+	"encoding/json"
 )
 
-var (
-	ErrLengthZero     = errors.New("length response 0")
-	ErrCorruptHeader  = errors.New("corrupt header")
-	ErrObjectNotFound = errors.New("object not found")
-)
+// Store an object in riak
+func (c *Conn) StoreObject(bucket string, key string, content string) (b []byte, err error) {
+	jval, err := json.Marshal(content)
 
-func writeRequest(c *Conn, formattedRequest []byte) (err error) {
-	_, err = c.conn.Write(formattedRequest)
-	return err
+	reqstruct := &RpbPutReq{
+		Bucket: []byte(bucket),
+		Key:    []byte(key),
+		Content: &RpbContent{
+			Value:       []byte(jval),
+			ContentType: []byte("application/json"),
+		},
+	}
+
 }
 
-func readResponse(c *Conn) (respraw []byte, err error) {
-	respraw = make([]byte, 512)
+// Fetch an object from a bucket
+func (c *Conn) FetchObject(bucket string, key string) (b []byte, err error) {
+	reqstruct := &RpbGetReq{
+		Bucket: []byte(bucket),
+		Key:    []byte(key),
+	}
 
-	c.conn.Read(respraw)
-
-	_ = respraw[3]
-
-	return respraw, nil
 }
+
+// List all buckets
+func (c *Conn) ListBuckets() (b [][]byte, err error) {
+	reqdata := []byte{0, 0, 0, 1, 15}
+
+	err = writeRequest(c, reqdata)
+	if err != nil {
+		return nil, err
+	}
+}
+
+// List all keys from bucket
+func (c *Conn) ListKeys(bucket string) (b [][]byte, err error) {
+	reqstruct := &RpbListKeysReq{
+		Bucket: []byte(bucket),
+	}
+
+}
+
+// Get server info
+func (c *Conn) GetServerInfo() (b []byte, err error) {
+	reqdata := []byte{0, 0, 0, 1, 7}
+
+	err = writeRequest(c, reqdata)
+	if err != nil {
+		return nil, err
+	}
+}
+
+// Get bucket info
+func (c *Conn) GetBucket(bucket string) (b []byte, err error) {
+	return b, nil
+}
+
+// Create bucket
+func (c *Conn) SetBucket(bucket string, nval *uint32, allowmult *bool) (response []byte, err error) {
+	propstruct := &RpbBucketProps{
+		NVal:      nval,
+		AllowMult: allowmult,
+	}
+
+	reqstruct := &RpbSetBucketReq{
+		Bucket: []byte(bucket),
+		Props:  propstruct,
+	}
+  
+  err = makeRequest(reqstruct, "RpbSetBucketReq")
+
+  response = getResp(bar, baz)
+
+  return response, nil
+}
+
+
+
+	marshaledRequest, err := marshalRequest(reqstruct)
+	if err != nil {
+		return nil, err
+	}
+
+	formattedRequest, err := prependRequestHeader("RpbPutReq", marshaledRequest)
+	if err != nil {
+		return
+	}
+
+	err = writeRequest(c, formattedRequest)
+	if err != nil {
+		return nil, err
+	}
+

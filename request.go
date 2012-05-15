@@ -1,8 +1,9 @@
 package riakpbc
 
 import (
-	"encoding/json"
+	"code.google.com/p/goprotobuf/proto"
 )
+
 
 var commandToNum = map[string]byte{
 	"RpbErrorResp":         0,
@@ -32,25 +33,39 @@ var commandToNum = map[string]byte{
 	"RpbMapRedResp":        24,
 }
 
-// Store an object in riak
-func (c *Conn) StoreObject(bucket string, key string, content string) (b []byte, err error) {
-	jval, err := json.Marshal(content)
+func prependRequestHeader(commandName string, marshaledReqData []byte) (formattedData []byte, e error) {
+	msgbuf := []byte{}
+	formattedData = []byte{}
 
-	reqstruct := &RpbPutReq{
-		Bucket: []byte(bucket),
-		Key:    []byte(key),
-		Content: &RpbContent{
-			Value:       []byte(jval),
-			ContentType: []byte("application/json"),
-		},
-	}
+	mn := []byte{0, 0, 0}
+	comm := []byte{commandToNum[commandName]}
+
+	msgbuf = append(msgbuf, comm...)
+	msgbuf = append(msgbuf, marshaledReqData...)
+
+	length := []byte{byte(len(msgbuf))}
+
+	formattedData = append(formattedData, mn...)
+	formattedData = append(formattedData, length...)
+	formattedData = append(formattedData, msgbuf...)
+
+	return formattedData, nil
+}
+
+func marshalRequest(reqstruct interface{}) (marshaledRequest []byte, err error) {
+
+	marshaledRequest, err = proto.Marshal(reqstruct)
+
+	return marshaledRequest, err
+}
+
 
 	marshaledRequest, err := marshalRequest(reqstruct)
 	if err != nil {
 		return nil, err
 	}
 
-	formattedRequest, err := formatMarshaledData("RpbPutReq", marshaledRequest)
+	formattedRequest, err := prependRequestHeader("RpbSetBucketReq", marshaledRequest)
 	if err != nil {
 		return
 	}
@@ -59,183 +74,4 @@ func (c *Conn) StoreObject(bucket string, key string, content string) (b []byte,
 	if err != nil {
 		return nil, err
 	}
-
-	marshaledResponse, err := readResponse(c)
-	if err != nil {
-		return nil, err
-	}
-
-	rawresp, err := unmarshalResponse(marshaledResponse)
-	if err != nil {
-		return nil, err
-	}
-	b = rawresp.([]byte)
-
-	return b, nil
-}
-
-// Fetch an object from a bucket
-func (c *Conn) FetchObject(bucket string, key string) (b []byte, err error) {
-	reqstruct := &RpbGetReq{
-		Bucket: []byte(bucket),
-		Key:    []byte(key),
-	}
-
-	marshaledRequest, err := marshalRequest(reqstruct)
-	if err != nil {
-		return nil, err
-	}
-
-	formattedRequest, err := formatMarshaledData("RpbGetReq", marshaledRequest)
-	if err != nil {
-		return nil, err
-	}
-
-	err = writeRequest(c, formattedRequest)
-	if err != nil {
-		return nil, err
-	}
-
-	marshaledResponse, err := readResponse(c)
-	if err != nil {
-		return nil, err
-	}
-
-	rawresp, err := unmarshalResponse(marshaledResponse)
-	if err != nil {
-		return nil, err
-	}
-	b = rawresp.([]byte)
-
-	return b, nil
-}
-
-// List all buckets
-func (c *Conn) ListBuckets() (b [][]byte, err error) {
-	reqdata := []byte{0, 0, 0, 1, 15}
-
-	err = writeRequest(c, reqdata)
-	if err != nil {
-		return nil, err
-	}
-
-	marshaledResponse, err := readResponse(c)
-	if err != nil {
-		return nil, err
-	}
-
-	rawresp, err := unmarshalResponse(marshaledResponse)
-
-	if err != nil {
-		return nil, err
-	}
-
-	b = rawresp.([][]byte)
-
-	return b, nil
-}
-
-// List all keys from bucket
-func (c *Conn) ListKeys(bucket string) (b [][]byte, err error) {
-	reqstruct := &RpbListKeysReq{
-		Bucket: []byte(bucket),
-	}
-
-	marshaledRequest, err := marshalRequest(reqstruct)
-	if err != nil {
-		return nil, err
-	}
-
-	formattedRequest, err := formatMarshaledData("RpbListKeysReq", marshaledRequest)
-	if err != nil {
-		return nil, err
-	}
-
-	err = writeRequest(c, formattedRequest)
-	if err != nil {
-		return nil, err
-	}
-
-	marshaledResponse, err := readResponse(c)
-	if err != nil {
-		return nil, err
-	}
-
-	rawresp, err := unmarshalResponse(marshaledResponse)
-
-	if err != nil {
-		return nil, err
-	}
-	b = rawresp.([][]byte)
-
-	return b, nil
-}
-
-// Get server info
-func (c *Conn) GetServerInfo() (b []byte, err error) {
-	reqdata := []byte{0, 0, 0, 1, 7}
-
-	err = writeRequest(c, reqdata)
-	if err != nil {
-		return nil, err
-	}
-
-	marshaledResponse, err := readResponse(c)
-	if err != nil {
-		return nil, err
-	}
-
-	rawresp, err := unmarshalResponse(marshaledResponse)
-	if err != nil {
-		return nil, err
-	}
-	b = rawresp.([]byte)
-
-	return b, nil
-}
-
-// Get bucket info
-func (c *Conn) GetBucket(bucket string) (b []byte, err error) {
-	return b, nil
-}
-
-// Create bucket
-func (c *Conn) SetBucket(bucket string, nval *uint32, allowmult *bool) (b []byte, err error) {
-	propstruct := &RpbBucketProps{
-		NVal:      nval,
-		AllowMult: allowmult,
-	}
-
-	reqstruct := &RpbSetBucketReq{
-		Bucket: []byte(bucket),
-		Props:  propstruct,
-	}
-
-	marshaledRequest, err := marshalRequest(reqstruct)
-	if err != nil {
-		return nil, err
-	}
-
-	formattedRequest, err := formatMarshaledData("RpbSetBucketReq", marshaledRequest)
-	if err != nil {
-		return
-	}
-
-	err = writeRequest(c, formattedRequest)
-	if err != nil {
-		return nil, err
-	}
-
-	marshaledResponse, err := readResponse(c)
-	if err != nil {
-		return nil, err
-	}
-
-	rawresp, err := unmarshalResponse(marshaledResponse)
-	if err != nil {
-		return nil, err
-	}
-	b = rawresp.([]byte)
-
-	return b, nil
 }
