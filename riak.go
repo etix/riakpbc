@@ -5,7 +5,7 @@ import (
 )
 
 // Store an object in riak
-func (c *Conn) StoreObject(bucket string, key string, content string) (b []byte, err error) {
+func (c *Conn) StoreObject(bucket string, key string, content string) (response []byte, err error) {
 	jval, err := json.Marshal(content)
 
 	reqstruct := &RpbPutReq{
@@ -17,15 +17,17 @@ func (c *Conn) StoreObject(bucket string, key string, content string) (b []byte,
 		},
 	}
 
+	return response, nil
 }
 
 // Fetch an object from a bucket
-func (c *Conn) FetchObject(bucket string, key string) (b []byte, err error) {
+func (c *Conn) FetchObject(bucket string, key string) (response []byte, err error) {
 	reqstruct := &RpbGetReq{
 		Bucket: []byte(bucket),
 		Key:    []byte(key),
 	}
 
+	return response, nil
 }
 
 // List all buckets
@@ -39,26 +41,29 @@ func (c *Conn) ListBuckets() (b [][]byte, err error) {
 }
 
 // List all keys from bucket
-func (c *Conn) ListKeys(bucket string) (b [][]byte, err error) {
+func (c *Conn) ListKeys(bucket string) (response [][]byte, err error) {
 	reqstruct := &RpbListKeysReq{
 		Bucket: []byte(bucket),
 	}
 
+	return response, nil
 }
 
 // Get server info
-func (c *Conn) GetServerInfo() (b []byte, err error) {
+func (c *Conn) GetServerInfo() (response []byte, err error) {
 	reqdata := []byte{0, 0, 0, 1, 7}
 
 	err = writeRequest(c, reqdata)
 	if err != nil {
 		return nil, err
 	}
+
+	return response, nil
 }
 
 // Get bucket info
-func (c *Conn) GetBucket(bucket string) (b []byte, err error) {
-	return b, nil
+func (c *Conn) GetBucket(bucket string) (response []byte, err error) {
+	return response, nil
 }
 
 // Create bucket
@@ -75,7 +80,7 @@ func (c *Conn) SetBucket(bucket string, nval *uint32, allowmult *bool) (response
 
 	err = makeRequest(reqstruct, "RpbSetBucketReq")
 
-	response = getResp(bar, baz)
+	response, err = getResponse(bar, baz)
 
 	return response, nil
 }
