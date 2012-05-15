@@ -1,6 +1,6 @@
 package riakpbc
 
-import(
+import (
 	"encoding/json"
 )
 
@@ -72,15 +72,15 @@ func (c *Conn) SetBucket(bucket string, nval *uint32, allowmult *bool) (response
 		Bucket: []byte(bucket),
 		Props:  propstruct,
 	}
-  
-  err = makeRequest(reqstruct, "RpbSetBucketReq")
 
-  response = getResp(bar, baz)
+	err = makeRequest(reqstruct, "RpbSetBucketReq")
 
-  return response, nil
+	response = getResp(bar, baz)
+
+	return response, nil
 }
 
-
+/*
 
 	marshaledRequest, err := marshalRequest(reqstruct)
 	if err != nil {
@@ -96,4 +96,4 @@ func (c *Conn) SetBucket(bucket string, nval *uint32, allowmult *bool) (response
 	if err != nil {
 		return nil, err
 	}
-
+*/

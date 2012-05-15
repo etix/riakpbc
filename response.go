@@ -1,6 +1,6 @@
 package riakpbc
 
-import(
+import (
 	"code.google.com/p/goprotobuf/proto"
 )
 
@@ -32,7 +32,7 @@ var numToCommand = map[int]string{
 	24: "RpbMapRedResp",
 }
 
-
+/*
 	marshaledResponse, err := readResponse(c)
 	if err != nil {
 		return nil, err
@@ -57,15 +57,15 @@ var numToCommand = map[int]string{
 	}
 
   rawmessage = respraw[5 : resplength+3]
-
+*/
 
 func unmarshalResponse(respraw []byte) (respbuf interface{}, err error) {
 	// should accept message and struct
-  structname := numToCommand[int(resptype)]
+	structname := numToCommand[int(resptype)]
 
 	respbuf = respraw[5 : resplength+3]
 
-  respstruct := getResponseStruct(structname
+	//respstruct := getResponseStruct(structname
 
 	if structname == "RpbGetResp" {
 		respstruct := &RpbGetResp{}
@@ -101,24 +101,24 @@ func unmarshalResponse(respraw []byte) (respbuf interface{}, err error) {
 }
 
 func validateResponseHeader(respraw []byte) (err error) {
-  if len(respraw) < 5 {
+	if len(respraw) < 5 {
 		err = ErrCorruptHeader
 		return nil, err
 	}
 
 	resplength := int(respraw[3])
 
-  if resplength < 0 {
+	if resplength < 0 {
 		err = ErrLengthZero
-    return nil, err
-  }
+		return nil, err
+	}
 
 	resptype := respraw[4]
 
-  if resptype < 0 || resptype > 24 {
-    err = ErrNoSuchCommand
-    return nil, err
-  }
+	if resptype < 0 || resptype > 24 {
+		err = ErrNoSuchCommand
+		return nil, err
+	}
 
-  return nil
+	return nil
 }

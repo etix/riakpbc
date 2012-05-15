@@ -4,7 +4,6 @@ import (
 	"code.google.com/p/goprotobuf/proto"
 )
 
-
 var commandToNum = map[string]byte{
 	"RpbErrorResp":         0,
 	"RpbPingReq":           1,
@@ -59,7 +58,7 @@ func marshalRequest(reqstruct interface{}) (marshaledRequest []byte, err error) 
 	return marshaledRequest, err
 }
 
-
+/*
 	marshaledRequest, err := marshalRequest(reqstruct)
 	if err != nil {
 		return nil, err
@@ -74,4 +73,4 @@ func marshalRequest(reqstruct interface{}) (marshaledRequest []byte, err error) 
 	if err != nil {
 		return nil, err
 	}
-}
+}*/
