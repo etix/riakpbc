@@ -33,24 +33,55 @@ var numToCommand = map[int]string{
 }
 
 func (c *Conn) Response(respstruct interface{}, structname string) (response []byte, err error) {
-	marshaledResponse, err := c.Read()
+	rawresp, err := c.Read()
 	if err != nil {
 		return nil, err
 	}
 
-	rawresp, err := unmarshalResponse(marshaledResponse)
+  err = validateResponseHeader(rawresp)
 	if err != nil {
 		return nil, err
 	}
-	b = rawresp.([]byte)
 
-	rawmessage = respraw[5 : resplength+3]
+	unmarshaledresp, err := unmarshalResponse(rawresp)
+	if err != nil {
+		return nil, err
+	}
+	response = unmarshaledresp.([]byte)
+
+	//rawmessage = respraw[5 : resplength+3]
 
 	return response, nil
 }
 
+
+func validateResponseHeader(respraw []byte) (err error) {
+	if len(respraw) < 5 {
+		err = ErrCorruptHeader
+		return err
+	}
+
+	resplength := int(respraw[3])
+
+	if resplength < 0 {
+		err = ErrLengthZero
+		return err
+	}
+
+	resptype := respraw[4]
+
+	if resptype < 0 || resptype > 24 {
+		err = ErrNoSuchCommand
+		return err
+	}
+
+	return nil
+}
+
 func unmarshalResponse(respraw []byte) (respbuf interface{}, err error) {
-	// should accept message and struct
+  resptype := respraw[4]
+  resplength := int(respraw[3])
+
 	structname := numToCommand[int(resptype)]
 
 	respbuf = respraw[5 : resplength+3]
@@ -88,27 +119,4 @@ func unmarshalResponse(respraw []byte) (respbuf interface{}, err error) {
 	}
 
 	return respbuf, nil
-}
-
-func validateResponseHeader(respraw []byte) (err error) {
-	if len(respraw) < 5 {
-		err = ErrCorruptHeader
-		return nil, err
-	}
-
-	resplength := int(respraw[3])
-
-	if resplength < 0 {
-		err = ErrLengthZero
-		return nil, err
-	}
-
-	resptype := respraw[4]
-
-	if resptype < 0 || resptype > 24 {
-		err = ErrNoSuchCommand
-		return nil, err
-	}
-
-	return nil
 }

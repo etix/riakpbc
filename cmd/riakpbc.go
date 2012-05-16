@@ -12,13 +12,13 @@ func main() {
 	if err != nil {
 	}
 
-	obj, err := riak.FetchObject("bucket", "keydqwoidjqw")
+/*	obj, err := riak.FetchObject("bucket", "keydqwoidjqw")
 	log.Printf("%s", pretty.Formatter(obj))
 	log.Printf("%s", err)
-
+*/
 	bux, _ := riak.ListBuckets()
 	log.Printf("%s", pretty.Formatter(bux))
-
+/*
 	info, _ := riak.GetServerInfo()
 	log.Printf("%s", pretty.Formatter(info))
 
@@ -39,6 +39,6 @@ func main() {
 
 	obj, _ = riak.FetchObject("squadrons", "nymets")
 	log.Printf("%s", pretty.Formatter(obj))
-
+*/
 	riak.Close()
 }

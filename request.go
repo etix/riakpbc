@@ -43,7 +43,7 @@ func (c *Conn) Request(reqstruct interface{}, structname string) (err error) {
 		return err
 	}
 
-	err = c.Write(c, formattedRequest)
+	err = c.Write(formattedRequest)
 	if err != nil {
 		return err
 	}
@@ -76,20 +76,3 @@ func marshalRequest(reqstruct interface{}) (marshaledRequest []byte, err error) 
 
 	return marshaledRequest, err
 }
-
-/*
-	marshaledRequest, err := marshalRequest(reqstruct)
-	if err != nil {
-		return nil, err
-	}
-
-	formattedRequest, err := prependRequestHeader("RpbSetBucketReq", marshaledRequest)
-	if err != nil {
-		return
-	}
-
-	err = writeRequest(c, formattedRequest)
-	if err != nil {
-		return nil, err
-	}
-}*/

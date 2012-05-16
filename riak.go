@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 )
 
+
 // Store an object in riak
 func (c *Conn) StoreObject(bucket string, key string, content string) (response []byte, err error) {
 	jval, err := json.Marshal(content)
@@ -16,10 +17,14 @@ func (c *Conn) StoreObject(bucket string, key string, content string) (response 
 			ContentType: []byte("application/json"),
 		},
 	}
+  
+  if reqstruct != nil {
+    return
+  }
 
 	return response, nil
 }
-
+/*
 // Fetch an object from a bucket
 func (c *Conn) FetchObject(bucket string, key string) (response []byte, err error) {
 	reqstruct := &RpbGetReq{
@@ -80,10 +85,10 @@ func (c *Conn) SetBucket(bucket string, nval *uint32, allowmult *bool) (response
 	}
 
 	return response, nil
-}
+}*/
 
 // List all buckets
-func (c *Conn) ListBuckets() (b [][]byte, err error) {
+func (c *Conn) ListBuckets() (response []byte, err error) {
 	reqdata := []byte{0, 0, 0, 1, 15}
 
 	err = c.Request(reqdata, "RpbListBucketsReq")
