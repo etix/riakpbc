@@ -30,16 +30,6 @@ func (c *Conn) FetchObject(bucket string, key string) (response []byte, err erro
 	return response, nil
 }
 
-// List all buckets
-func (c *Conn) ListBuckets() (b [][]byte, err error) {
-	reqdata := []byte{0, 0, 0, 1, 15}
-
-	err = writeRequest(c, reqdata)
-	if err != nil {
-		return nil, err
-	}
-}
-
 // List all keys from bucket
 func (c *Conn) ListKeys(bucket string) (response [][]byte, err error) {
 	reqstruct := &RpbListKeysReq{
@@ -63,6 +53,7 @@ func (c *Conn) GetServerInfo() (response []byte, err error) {
 
 // Get bucket info
 func (c *Conn) GetBucket(bucket string) (response []byte, err error) {
+
 	return response, nil
 }
 
@@ -78,27 +69,32 @@ func (c *Conn) SetBucket(bucket string, nval *uint32, allowmult *bool) (response
 		Props:  propstruct,
 	}
 
-	err = makeRequest(reqstruct, "RpbSetBucketReq")
+	err = c.Request(reqstruct, "RpbSetBucketReq")
+	if err != nil {
+		return nil, err
+	}
 
-	response, err = getResponse(bar, baz)
+	response, err = c.Response(&RpbSetBucketResp{}, "RpbSetBucketResp")
+	if err != nil {
+		return nil, err
+	}
 
 	return response, nil
 }
 
-/*
+// List all buckets
+func (c *Conn) ListBuckets() (b [][]byte, err error) {
+	reqdata := []byte{0, 0, 0, 1, 15}
 
-	marshaledRequest, err := marshalRequest(reqstruct)
+	err = c.Request(reqdata, "RpbListBucketsReq")
 	if err != nil {
 		return nil, err
 	}
 
-	formattedRequest, err := prependRequestHeader("RpbPutReq", marshaledRequest)
-	if err != nil {
-		return
-	}
-
-	err = writeRequest(c, formattedRequest)
+	response, err = c.Response(&RpbListBucketsResp{}, "RpbListBucketsResp")
 	if err != nil {
 		return nil, err
 	}
-*/
+
+	return response, nil
+}

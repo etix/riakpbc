@@ -32,6 +32,25 @@ var commandToNum = map[string]byte{
 	"RpbMapRedResp":        24,
 }
 
+func (c *Conn) Request(reqstruct interface{}, structname string) (err error) {
+	marshaledRequest, err := marshalRequest(reqstruct)
+	if err != nil {
+		return err
+	}
+
+	formattedRequest, err := prependRequestHeader("RpbPutReq", marshaledRequest)
+	if err != nil {
+		return err
+	}
+
+	err = c.Write(c, formattedRequest)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func prependRequestHeader(commandName string, marshaledReqData []byte) (formattedData []byte, e error) {
 	msgbuf := []byte{}
 	formattedData = []byte{}
