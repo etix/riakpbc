@@ -32,7 +32,7 @@ var numToCommand = map[int]string{
 	24: "RpbMapRedResp",
 }
 
-func (c *Conn) Response(respstruct interface{}, structname string) (response []byte, err error) {
+func (c *Conn) Response(respstruct interface{}, structname string) (response interface{}, err error) {
 	rawresp, err := c.Read()
 	if err != nil {
 		return nil, err
@@ -47,9 +47,8 @@ func (c *Conn) Response(respstruct interface{}, structname string) (response []b
 	if err != nil {
 		return nil, err
 	}
-	response = unmarshaledresp.([]byte)
 
-	//rawmessage = respraw[5 : resplength+3]
+	response = unmarshaledresp
 
 	return response, nil
 }
@@ -85,8 +84,6 @@ func unmarshalResponse(respraw []byte) (respbuf interface{}, err error) {
 	structname := numToCommand[int(resptype)]
 
 	respbuf = respraw[5 : resplength+3]
-
-	//respstruct := getResponseStruct(structname
 
 	if structname == "RpbGetResp" {
 		respstruct := &RpbGetResp{}

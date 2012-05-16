@@ -2,6 +2,7 @@ package riakpbc
 
 import (
 	"code.google.com/p/goprotobuf/proto"
+  "reflect"
 )
 
 var commandToNum = map[string]byte{
@@ -38,7 +39,7 @@ func (c *Conn) Request(reqstruct interface{}, structname string) (err error) {
 		return err
 	}
 
-	formattedRequest, err := prependRequestHeader("RpbPutReq", marshaledRequest)
+	formattedRequest, err := prependRequestHeader(structname, marshaledRequest)
 	if err != nil {
 		return err
 	}
@@ -71,8 +72,7 @@ func prependRequestHeader(commandName string, marshaledReqData []byte) (formatte
 }
 
 func marshalRequest(reqstruct interface{}) (marshaledRequest []byte, err error) {
-
-	marshaledRequest, err = proto.Marshal(reqstruct)
+  marshaledRequest, err = proto.Marshal(reflect.TypeOf(reqstruct))
 
 	return marshaledRequest, err
 }

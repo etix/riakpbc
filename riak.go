@@ -2,6 +2,7 @@ package riakpbc
 
 import (
 	"encoding/json"
+  "log"
 )
 
 
@@ -24,7 +25,7 @@ func (c *Conn) StoreObject(bucket string, key string, content string) (response 
 
 	return response, nil
 }
-/*
+
 // Fetch an object from a bucket
 func (c *Conn) FetchObject(bucket string, key string) (response []byte, err error) {
 	reqstruct := &RpbGetReq{
@@ -32,13 +33,28 @@ func (c *Conn) FetchObject(bucket string, key string) (response []byte, err erro
 		Key:    []byte(key),
 	}
 
+	err = c.Request(reqstruct, "RpbGetReq")
+  if err != nil {
+		return nil, err
+	}
+
+	uncoercedresponse, err := c.Response(&RpbGetResp{}, "RpbGetResp")
+  if err != nil {
+		return nil, err
+	}
+
+  response = uncoercedresponse.([]byte)
+  if err != nil {
+		return nil, err
+	}
+
 	return response, nil
 }
-
+/*
 // List all keys from bucket
 func (c *Conn) ListKeys(bucket string) (response [][]byte, err error) {
 	reqstruct := &RpbListKeysReq{
-		Bucket: []byte(bucket),
+		Bucket: []byte(bucke,
 	}
 
 	return response, nil
@@ -88,7 +104,7 @@ func (c *Conn) SetBucket(bucket string, nval *uint32, allowmult *bool) (response
 }*/
 
 // List all buckets
-func (c *Conn) ListBuckets() (response []byte, err error) {
+func (c *Conn) ListBuckets() (response [][]byte, err error) {
 	reqdata := []byte{0, 0, 0, 1, 15}
 
 	err = c.Request(reqdata, "RpbListBucketsReq")
@@ -96,8 +112,10 @@ func (c *Conn) ListBuckets() (response []byte, err error) {
 		return nil, err
 	}
 
-	response, err = c.Response(&RpbListBucketsResp{}, "RpbListBucketsResp")
-	if err != nil {
+	uncoercedresponse, err := c.Response(&RpbListBucketsResp{}, "RpbListBucketsResp")
+
+  response = uncoercedresponse.([][]byte)
+  if err != nil {
 		return nil, err
 	}
 
