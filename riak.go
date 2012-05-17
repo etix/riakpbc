@@ -2,9 +2,7 @@ package riakpbc
 
 import (
 	"encoding/json"
-  "log"
 )
-
 
 // Store an object in riak
 func (c *Conn) StoreObject(bucket string, key string, content string) (response []byte, err error) {

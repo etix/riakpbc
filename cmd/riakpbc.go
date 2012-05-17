@@ -10,15 +10,13 @@ func main() {
 	riak, err := riakpbc.Dial("127.0.0.1:8081")
 
 	if err != nil {
-    log.Print(err)
     return
 	}
 
-	obj, err := riak.FetchObject("bucket", "keydqwoidjqw")
+	obj, err := riak.FetchObject("buckest", "key")
 
   if err != nil {
     log.Print(err)
-    return
 	}
 
 	log.Printf("%s", pretty.Formatter(obj))
@@ -27,7 +25,6 @@ func main() {
 
   if err != nil {
     log.Print(err)
-    return
 	}
 
 	log.Printf("%s", pretty.Formatter(bux))
