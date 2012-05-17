@@ -28,7 +28,7 @@ func main() {
 	}
 
 	log.Printf("%s", pretty.Formatter(bux))
-/*
+
 	info, _ := riak.GetServerInfo()
 	log.Printf("%s", pretty.Formatter(info))
 
@@ -41,14 +41,14 @@ func main() {
 	nval := uint32(1)
 	allowmult := false
 
-	nobj, _ = riak.SetBucket("squadrons", &nval, &allowmult)
+	nobj, _ = riak.SetBucket("squadronsz", &nval, &allowmult)
 	log.Printf("%s", pretty.Formatter(nobj))
 
-	storeresp, _ = riak.StoreObject("squadrons", "nymets", "{'players':['deyzle','freyzle','chezyle']}")
+	storeresp, _ = riak.StoreObject("squadronsz", "nsymets", "{'zzzzlayers':['deyzle','freyzle','chezyle']}")
 	log.Printf("%s", pretty.Formatter(storeresp))
 
-	obj, _ = riak.FetchObject("squadrons", "nymets")
+	obj, _ = riak.FetchObject("squadrosz", "nsymets")
 	log.Printf("%s", pretty.Formatter(obj))
-*/
+
 	riak.Close()
 }

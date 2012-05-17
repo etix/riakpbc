@@ -17,9 +17,20 @@ func (c *Conn) StoreObject(bucket string, key string, content string) (response 
 		},
 	}
   
-  if reqstruct != nil {
-    return
-  }
+  err = c.Request(reqstruct, "RpbPutReq")
+  if err != nil {
+		return nil, err
+	}
+
+	uncoercedresponse, err := c.Response(&RpbGetResp{}, "RpbPutResp")
+  if err != nil {
+		return nil, err
+	}
+
+  response = uncoercedresponse.([]byte)
+  if err != nil {
+		return nil, err
+	}
 
 	return response, nil
 }
@@ -48,6 +59,7 @@ func (c *Conn) FetchObject(bucket string, key string) (response []byte, err erro
 
 	return response, nil
 }
+
 /*
 // List all keys from bucket
 func (c *Conn) ListKeys(bucket string) (response [][]byte, err error) {
@@ -57,13 +69,21 @@ func (c *Conn) ListKeys(bucket string) (response [][]byte, err error) {
 
 	return response, nil
 }
+*/
 
 // Get server info
 func (c *Conn) GetServerInfo() (response []byte, err error) {
 	reqdata := []byte{0, 0, 0, 1, 7}
 
-	err = writeRequest(c, reqdata)
+	err = c.Request(reqdata, "RpbGetServerInfoReq")
 	if err != nil {
+		return nil, err
+	}
+
+	uncoercedresponse, err := c.Response(&RpbGetServerInfoResp{}, "RpbGetServerInfoResp")
+
+  response = uncoercedresponse.([]byte)
+  if err != nil {
 		return nil, err
 	}
 
@@ -88,18 +108,23 @@ func (c *Conn) SetBucket(bucket string, nval *uint32, allowmult *bool) (response
 		Props:  propstruct,
 	}
 
-	err = c.Request(reqstruct, "RpbSetBucketReq")
-	if err != nil {
+	err = c.Request(reqstruct, "RpbSetBucketRequ")
+  if err != nil {
 		return nil, err
 	}
 
-	response, err = c.Response(&RpbSetBucketResp{}, "RpbSetBucketResp")
-	if err != nil {
+	uncoercedresponse, err := c.Response(&RpbSetBucketResp{}, "RpbSetBucketResp")
+  if err != nil {
+		return nil, err
+	}
+
+  response = uncoercedresponse.([]byte)
+  if err != nil {
 		return nil, err
 	}
 
 	return response, nil
-}*/
+}
 
 // List all buckets
 func (c *Conn) ListBuckets() (response [][]byte, err error) {

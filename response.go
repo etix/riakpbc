@@ -67,6 +67,11 @@ func validateResponseHeader(respraw []byte) (err error) {
 		return err
 	}
 
+  if resplength == 0 {
+    err = ErrLengthZero
+    return err
+  }
+
   if resplength == 1 {
     err = ErrObjectNotFound
     return err
@@ -85,13 +90,12 @@ func validateResponseHeader(respraw []byte) (err error) {
 func unmarshalResponse(respraw []byte) (respbuf interface{}, err error) {
   resptype := respraw[4]
   resplength := int(respraw[3])
-
 	structname := numToCommand[int(resptype)]
 
   respbuf = respraw[5 : resplength+3]
 
 	if structname == "RpbGetResp" {
-		respstruct := &RpbGetResp{}
+    respstruct := &RpbGetResp{}
     if resplength == 1 {
       err = ErrObjectNotFound
       return nil, err
@@ -119,9 +123,8 @@ func unmarshalResponse(respraw []byte) (respbuf interface{}, err error) {
 	}
 
 	if structname == "RpbSetBucketResp" {
-		respstruct := &RpbSetBucketResp{}
-		err = proto.Unmarshal(respbuf.([]byte), respstruct)
-		respbuf = []byte("Success")
+    respbuf = []byte("Success")
+    return respbuf, nil
 	}
 
 	return respbuf, nil

@@ -9,4 +9,5 @@ var (
 	ErrCorruptHeader  = errors.New("corrupt header")
 	ErrObjectNotFound = errors.New("object not found")
 	ErrNoSuchCommand  = errors.New("no such command")
+  ErrBucketExists = errors.New("bucket exists")
 )
