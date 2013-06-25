@@ -5,6 +5,7 @@ import (
 	"code.google.com/p/goprotobuf/proto"
 	"encoding/binary"
 	"io"
+	"log"
 	"net"
 	"sync"
 	"time"
@@ -18,6 +19,8 @@ type Node struct {
 	writeTimeout time.Duration
 	errorRate    *Decaying
 	ok           bool
+	errorReport  chan float64
+	errorValue   chan float64
 	sync.Mutex
 }
 
@@ -35,6 +38,8 @@ func NewNode(addr string, readTimeout, writeTimeout time.Duration) (*Node, error
 		writeTimeout: writeTimeout,
 		errorRate:    NewDecaying(),
 		ok:           true,
+		errorValue:   make(chan float64, 1),
+		errorReport:  make(chan float64, 1),
 	}
 
 	return node, nil
@@ -48,19 +53,29 @@ func (node *Node) Dial() (err error) {
 	}
 
 	node.conn.SetKeepAlive(true)
-
+	go node.Start()
 	return nil
+}
+
+func (node *Node) Start() {
+	for {
+		select {
+		case addErrorAmount := <-node.errorReport:
+			node.errorRate.Add(addErrorAmount)
+		default:
+			node.errorValue <- node.errorRate.Value()
+		}
+	}
 }
 
 // ErrorRate safely returns the current Node's error rate
 func (node *Node) ErrorRate() float64 {
-	return node.errorRate.Value()
+	return <-node.errorValue
 }
 
 // RecordErrror increments the current error value - see decaying.go
 func (node *Node) RecordError(amount float64) {
-	node.ok = false
-	node.errorRate.Add(amount)
+	node.errorReport <- amount
 }
 
 func (node *Node) ReqResp(reqstruct interface{}, structname string, raw bool) (response interface{}, err error) {
@@ -121,6 +136,7 @@ func (node *Node) ReqMultiResp(reqstruct interface{}, structname string) (respon
 }
 
 func (node *Node) Ping() bool {
+	log.Print(node, " <-- PING")
 	resp, err := node.ReqResp([]byte{}, "RpbPingReq", true)
 	if resp == nil || string(resp.([]byte)) != "Pong" || err != nil {
 		return false

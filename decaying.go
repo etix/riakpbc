@@ -25,7 +25,7 @@ func NewDecaying() *Decaying {
 	return &Decaying{
 		p:  0.0,
 		e:  math.E,
-		r:  math.Log(0.5) / 10,
+		r:  math.Log(0.5),
 		t0: time.Now(),
 	}
 }
@@ -33,21 +33,17 @@ func NewDecaying() *Decaying {
 // Value is the current value of this decaying error value - the time since it was
 // created is stored for adjustment.
 func (decaying *Decaying) Value() float64 {
-	decaying.Lock()
 	now := time.Now()
 	dt := now.Sub(decaying.t0).Seconds()
 	decaying.t0 = now
 	curValP := decaying.p
 	decaying.p = curValP * math.Pow(decaying.e, (decaying.r*dt))
 	pOut := decaying.p
-	decaying.Unlock()
 	return pOut
 }
 
 // Add icnrements the `p` value of the decaying error object
 func (decaying *Decaying) Add(d float64) {
 	prevVal := decaying.Value()
-	decaying.Lock()
 	decaying.p = prevVal + d
-	decaying.Unlock()
 }
