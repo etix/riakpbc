@@ -69,7 +69,7 @@ func main() {
 				}
 
 				actionDuration := time.Now().Sub(actionBegin)
-				log.Print("<", which, "> @", times, " ", riak.Pool(), "!<",errs, "> ", actionDuration)
+				log.Printf("%s !<%#v> %.5sms", riak.Pool(), errs, actionDuration)
 			}
 		}(g)
 	}

@@ -5,7 +5,6 @@ import (
 	"code.google.com/p/goprotobuf/proto"
 	"encoding/binary"
 	"io"
-	"log"
 	"net"
 	"sync"
 	"time"
@@ -38,8 +37,8 @@ func NewNode(addr string, readTimeout, writeTimeout time.Duration) (*Node, error
 		writeTimeout: writeTimeout,
 		errorRate:    NewDecaying(),
 		ok:           true,
-		errorValue:   make(chan float64, 1),
-		errorReport:  make(chan float64, 1),
+		errorValue:   make(chan float64, 10),
+		errorReport:  make(chan float64, 10),
 	}
 
 	return node, nil
@@ -75,6 +74,7 @@ func (node *Node) ErrorRate() float64 {
 
 // RecordErrror increments the current error value - see decaying.go
 func (node *Node) RecordError(amount float64) {
+	node.ok = false
 	node.errorReport <- amount
 }
 
@@ -136,7 +136,6 @@ func (node *Node) ReqMultiResp(reqstruct interface{}, structname string) (respon
 }
 
 func (node *Node) Ping() bool {
-	log.Print(node, " <-- PING")
 	resp, err := node.ReqResp([]byte{}, "RpbPingReq", true)
 	if resp == nil || string(resp.([]byte)) != "Pong" || err != nil {
 		return false

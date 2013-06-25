@@ -47,7 +47,7 @@ func (pool *Pool) SelectNode() *Node {
 		if nodeErrorValue < errorThreshold {
 			possibleNodes = append(possibleNodes, node)
 		} else {
-			if node.ok == false && node.ErrorRate() < 100.0 {
+			if node.ok == false && nodeErrorValue < 100.0 {
 				go func(iNode *Node) {
 					nodeGood := iNode.Ping()
 					if nodeGood == false {
@@ -119,7 +119,11 @@ func (pool *Pool) Size() int {
 func (pool *Pool) String() string {
 	var outString string
 	for _, node := range pool.nodes {
-		nodeString := fmt.Sprintf(" [%s %f <%t>] ", node.addr, node.ErrorRate(), node.ok)
+		t := "f"
+		if node.ok == true {
+			t = "t"
+		}
+		nodeString := fmt.Sprintf("[%s %.4f <%s>]", node.addr, node.ErrorRate(), t)
 		outString += nodeString
 	}
 	return outString
