@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"github.com/mrb/riakpbc"
 	"log"
+	"os/exec"
 	"runtime"
 	"time"
 )
@@ -24,7 +26,7 @@ func main() {
 	var actionEnd time.Time
 	actionBegin := time.Now()
 
-	c := make(chan int)
+	c := make(chan bool)
 
 	for g := 0; g < 7; g++ {
 		go func(which int) {
@@ -69,14 +71,48 @@ func main() {
 				}
 
 				actionDuration := time.Now().Sub(actionBegin)
-				log.Printf("%s !<%#v> %.5sms", riak.Pool(), errs, actionDuration)
+				log.Printf("%s !<%#v> %s", riak.Pool(), errs, actionDuration)
 			}
 		}(g)
 	}
-	<-c
-	actionEnd = time.Now()
-	actionDuration := actionEnd.Sub(actionBegin)
-	log.Print("Ran for ", actionDuration)
 
-	riak.Close()
+	progress := 0
+	for {
+		select {
+		case <-c:
+			actionEnd = time.Now()
+			actionDuration := actionEnd.Sub(actionBegin)
+			log.Print("Ran for ", actionDuration)
+			riak.Close()
+		case <-time.After(5000 * time.Millisecond):
+			progress = progress + 1
+			var err error
+			switch progress {
+			case 1:
+				StartFW(5, []int{8087, 8088})
+			case 2:
+				DeleteFW()
+			}
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+	}
+}
+
+func StartFW(kb int, ports []int) {
+	cmd := exec.Command("sudo", "ipfw", "delete 1")
+	cmd.Run()
+	configString := fmt.Sprintf("pipe 1 config bw \"%#v\"KByte/s", kb)
+	cmd = exec.Command("sudo", "ipfw", configString)
+	for _, port := range ports {
+		throttleString := fmt.Sprintf("add 1 pipe 1 src-port %#v", port)
+		cmd := exec.Command("sudo", "ipfw", throttleString)
+		cmd.Run()
+	}
+}
+
+func DeleteFW() {
+	cmd := exec.Command("sudo", "ipfw", "delete 1")
+	cmd.Run()
 }
