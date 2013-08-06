@@ -74,9 +74,13 @@ func (c *Client) Close() {
 }
 
 // SelectNode selects a node from the pool, see *Pool.SelectNode()
-func (c *Client) SelectNode() *Node {
-	node := c.pool.SelectNode()
-	return node
+func (c *Client) SelectNode() (*Node, error) {
+	node, err := c.pool.SelectNode()
+	if err != nil {
+		return nil, err
+	}
+
+	return node, nil
 }
 
 // Pool returns the pool associated with the client.
@@ -149,14 +153,22 @@ func (c *Client) DoStruct(opts interface{}, in interface{}) (interface{}, error)
 
 // ReqResp is the top level interface for the client for a bulk of Riak operations
 func (c *Client) ReqResp(reqstruct interface{}, structname string, raw bool) (response interface{}, err error) {
-	return c.SelectNode().ReqResp(reqstruct, structname, raw)
+	node, err := c.SelectNode()
+	if err != nil {
+		return nil, err
+	}
+	return node.ReqResp(reqstruct, structname, raw)
 }
 
 // ReqMultiResp is the top level interface for the client for the few
 // operations which have to hit the server multiple times to guarantee
 // a complete response: List keys, Map Reduce, etc.
 func (c *Client) ReqMultiResp(reqstruct interface{}, structname string) (response interface{}, err error) {
-	return c.SelectNode().ReqMultiResp(reqstruct, structname)
+	node, err := c.SelectNode()
+	if err != nil {
+		return nil, err
+	}
+	return node.ReqMultiResp(reqstruct, structname)
 }
 
 func (c *Client) EnableLogging() {

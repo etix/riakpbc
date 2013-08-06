@@ -1,6 +1,7 @@
 package riakpbc
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"sync"
@@ -35,7 +36,7 @@ func NewPool(cluster []string) *Pool {
 //
 // Each node has an assignable error rate, which is incremented when an error
 // occurs, and decays over time - 50% each 10 seconds by default.
-func (pool *Pool) SelectNode() *Node {
+func (pool *Pool) SelectNode() (*Node, error) {
 	pool.Lock()
 	defer pool.Unlock()
 
@@ -53,9 +54,11 @@ func (pool *Pool) SelectNode() *Node {
 	numPossibleNodes := len(possibleNodes)
 
 	if numPossibleNodes > 0 {
-		return possibleNodes[rand.Int31n(int32(numPossibleNodes))]
+		return possibleNodes[rand.Int31n(int32(numPossibleNodes))], nil
+	} else if numPossibleNodes == 0 {
+		return nil, errors.New("Zero Good Nodes In Pool")
 	} else {
-		return pool.RandomNode()
+		return pool.RandomNode(), nil
 	}
 }
 
